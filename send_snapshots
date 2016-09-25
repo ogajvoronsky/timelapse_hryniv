@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Send snapshots uploaded by cams to Victor's dreambox
+
+# select&move
+
+archname=`date +%Y%m%d`
+mkdir /snapshots/$archname
+
+
+# for cam1
+cd /home/cam1
+
+i=$((`find -name *jpg | wc -l` / 300))
+
+for fname in `find -name *jpg | sed -n '0~'$i'p'`
+do
+ nname=`echo  $fname | cut -c 19-28`
+ nname=cam1-$nname`echo  $fname | cut -c 37-45`.jpg
+ nname=`echo $nname | sed "s/\//-/g"`
+ cp $fname /snapshots/$archname/$nname
+done
+
+
+
+
+# for cam2
+cd /home/cam2
+
+i=$((`find -name *jpg | wc -l` / 300))
+
+for fname in `find -name *jpg | sed -n '0~'$i'p'`
+do
+ nname=`echo  $fname | cut -c 19-28`
+ nname=cam2-$nname`echo  $fname | cut -c 37-45`.jpg
+ nname=`echo $nname | sed "s/\//-/g"`
+ cp $fname /snapshots/$archname/$nname
+done
+
+
+# for cam4
+cd /home/cam4
+
+i=$((`find -name *jpg | wc -l` / 300))
+
+for fname in `find -name *jpg | sed -n '0~'$i'p'`
+do
+ nname=`echo  $fname | cut -c 19-28`
+ nname=cam4-$nname`echo  $fname | cut -c 37-45`.jpg
+ nname=`echo $nname | sed "s/\//-/g"`
+ cp $fname /snapshots/$archname/$nname
+done
+
+
+# send
+
+lftp -u victor,A42g53GdAiRT -e 'mirror --reverse /snapshots/'$archname'; exit' 194.44.237.26 >>  /tmp/ftp.log
+
+#scp -r -P 9022 /snapshots/$archname root@tolstogo:/mnt/hdd/Hryniv-Snapshots/  1>/tmp/log.txt 2>/tmp/err.txt
+
+#sendemail -f hryniv@220ua.com  -t victor.zubrag@gmail.com -cc galex@220ua.com -u Daily snapshots for $archname upload status -m '\\dm800\Harddisk\Hryniv-Snapshots\'$archname `cat /tmp/log.txt` `cat /tmp/err.txt`  -s 220ua.com;
+
+#cleanup
+#rm /tmp/log.txt
+#rm /tmp/err.txt
+
+rm -rf /home/cam1/*
+rm -rf /home/cam2/*
+rm -rf /home/cam4/*
+
+
+
